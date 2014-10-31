@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+#
+# check_elasticsearch
+# Copyright (C) 2014 Pall Valmundsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from pynag.Plugins import PluginHelper, ok, warning, critical, unknown
+import requests, json
+
+helper = PluginHelper()
+
+helper.parser.add_option("-H", help="Host to connect to",
+        dest="host", default='localhost')
+helper.parser.add_option("-p", help="Port to connect to",
+        dest="port", default='9200')
+
+helper.parse_arguments()
+
+host = helper.options.host
+port = helper.options.port
+
+health_url = "http://{host}:{port}/_cluster/health".format(
+        host=host, port=port)
+
+cluster_health_req = requests.get(health_url)
+cluster_health = cluster_health_req.json()
+
+summary = "{cluster_name} cluster status {status}".format(
+        cluster_name=cluster_health['cluster_name'],
+        status=cluster_health['status'])
+
+helper.add_summary(summary)
+
+status_map = {'green': ok, 'yellow': warning, 'red': critical}
+helper.status(status_map[cluster_health['status']])
+
+# Add metrics
+helper.add_metric(label='number_of_nodes',
+        value=cluster_health['number_of_nodes'])
+helper.add_metric(label='unassigned_shards',
+        value=cluster_health['unassigned_shards'])
+helper.add_metric(label='active_primary_shards',
+        value=cluster_health['active_primary_shards'])
+helper.add_metric(label='relocating_shards',
+        value=cluster_health['relocating_shards'])
+helper.add_metric(label='active_shards',
+        value=cluster_health['active_shards'])
+helper.add_metric(label='initializing_shards',
+        value=cluster_health['initializing_shards'])
+helper.add_metric(label='number_of_data_nodes',
+        value=cluster_health['number_of_data_nodes'])
+
+# Exit boilerplate
+helper.check_all_metrics()
+helper.exit()
