@@ -46,21 +46,41 @@ helper.add_summary(summary)
 status_map = {'green': ok, 'yellow': warning, 'red': critical}
 helper.status(status_map[cluster_health['status']])
 
-# Add metrics
+# Add metrics and long output
 helper.add_metric(label='number_of_nodes',
         value=cluster_health['number_of_nodes'])
+helper.add_long_output('Number of nodes: {number_of_nodes}'.format(
+    number_of_nodes=cluster_health['number_of_nodes']))
+
 helper.add_metric(label='unassigned_shards',
         value=cluster_health['unassigned_shards'])
+helper.add_long_output('Unassigned shards: {unassigned_shards}'.format(
+    unassigned_shards=cluster_health['unassigned_shards']))
+
 helper.add_metric(label='active_primary_shards',
         value=cluster_health['active_primary_shards'])
+helper.add_long_output('Active primary shards: {active_primary_shards}'.format(
+    active_primary_shards=cluster_health['active_primary_shards']))
+
 helper.add_metric(label='relocating_shards',
         value=cluster_health['relocating_shards'])
+helper.add_long_output('Relocating shards: {relocating_shards}'.format(
+    relocating_shards=cluster_health['relocating_shards']))
+
 helper.add_metric(label='active_shards',
         value=cluster_health['active_shards'])
+helper.add_long_output('Active shards: {active_shards}'.format(
+    active_shards=cluster_health['active_shards']))
+
 helper.add_metric(label='initializing_shards',
         value=cluster_health['initializing_shards'])
+helper.add_long_output('Initializing shards: {initializing_shards}'.format(
+    initializing_shards=cluster_health['initializing_shards']))
+
 helper.add_metric(label='number_of_data_nodes',
         value=cluster_health['number_of_data_nodes'])
+helper.add_long_output('Number of data nodes: {number_of_data_nodes}'.format(
+    number_of_data_nodes=cluster_health['number_of_data_nodes']))
 
 # Exit boilerplate
 helper.check_all_metrics()
